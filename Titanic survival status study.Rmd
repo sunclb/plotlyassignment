@@ -1,0 +1,64 @@
+---
+title: "Titanic survival status study"
+author: "Sun Huiyuan"
+date: "2018Äê2ÔÂ14ÈÕ"
+output: ioslides_presentation
+---
+
+```{r setup, echo=FALSE,message=FALSE}
+library(tidyr)
+library(datasets)
+library(dplyr)
+library(plotly)
+data<-Titanic
+data<-data.frame(data)
+data<-spread(data,key=Survived,value=Freq)
+```
+
+## First Glance
+
+This report is to show the study of survival status of Titanic incident
+```{r,echo=FALSE,message=FALSE}
+yaxs<-list(title="Survival Rate",titlefont=t,tickformat = "%")
+addnewline<-function(plot,...){
+  plot%>%group_by_(...)%>%summarise(Yes=sum(Yes),No=sum(No))%>%mutate(Survival_Rate=Yes/(Yes+No))
+}
+subplot(
+  addnewline(data,"Class")%>%plot_ly(x=~Class,y=~Survival_Rate)%>%add_lines(name="by Class")%>%add_markers(showlegend=FALSE)%>%layout(yaxis=yaxs),
+  addnewline(data,"Sex")%>%plot_ly(x=~Sex,y=~Survival_Rate)%>%add_lines(name="by Sex")%>%add_markers(showlegend=FALSE),
+  addnewline(data,"Age")%>%plot_ly(x=~Age,y=~Survival_Rate)%>%add_lines(name="by Age")%>%add_markers(showlegend=FALSE),shareY=TRUE
+)%>%layout(title="Titanic Survival Rate")
+```
+
+## Observations
+
+- 1st Class survival rate is much higher than 2nd Class which is higher than 3rd Class and Crew
+- Female and Child have higher survival rate
+- We may want to explore whether all people from 1st and 2nd Class have higher survival rate?
+
+## Further exploration
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+
+subplot(
+filter(data,Class=="1st")%>%addnewline("Sex","Age")%>%plot_ly(x=~Age,y=~Survival_Rate)%>%add_lines(color=~as.factor(Sex))%>%add_markers(showlegend=FALSE,color=~as.factor(Sex))%>%layout(yaxis=yaxs),
+filter(data,Class=="2nd")%>%addnewline("Sex","Age")%>%plot_ly(x=~Age,y=~Survival_Rate)%>%add_lines(color=~as.factor(Sex),showlegend=FALSE)%>%add_markers(showlegend=FALSE,color=~as.factor(Sex))%>%layout(title="2nd Class"),
+filter(data,Class=="3rd")%>%addnewline("Sex","Age")%>%plot_ly(x=~Age,y=~Survival_Rate)%>%add_lines(color=~as.factor(Sex),showlegend=FALSE)%>%add_markers(showlegend=FALSE,color=~as.factor(Sex))%>%layout(xaxis=list(title="3rd Class",font=t))%>%layout(yaxis=yaxs),
+filter(data,Class=="Crew")%>%addnewline("Sex","Age")%>%plot_ly(x=~Age,y=~Survival_Rate)%>%add_lines(showlegend=FALSE)%>%add_markers(color=~as.factor(Sex),showlegend=FALSE,color=~as.factor(Sex))%>%layout(xaxis=list(title="Crew",font=t)),shareY=TRUE,nrows=2,shareX=TRUE,titleX = TRUE
+)%>%layout(title="Titanic Survival Rate",annotations=list(list(x=0.2,y=0.5,text="1st Class",showarrow=F,xref="paper",yref="paper"),list(x=0.8,y=0.5,text="2nd Class",showarrow=F,xref="paper",yref="paper")))
+```
+
+## Observations
+
+Based on these 4 plots, we can observe 
+
+- 1st Class people do have the best survival rate on all groups of people.
+- All children  and most females(>86%) from 1st Class, 2nd Class and Crew group are saved. 
+- But in 3rd class less than half children and females are saved
+- Adult male of 1st Class have the highest survival rate (33%) followed by adult male from Crew group (22%). And Adult male from 2nd Class have theh lowest survival rate which is only 8%. 
+
+## Thanks!
+
+
+
+
